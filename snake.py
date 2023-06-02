@@ -1,4 +1,5 @@
-import pygame, sys, time, random
+import pygame, sys, time
+from random import randrange
 
 velocidade = 15
 
@@ -24,7 +25,7 @@ verde = pygame.Color(14, 90, 50)
 amarelo = pygame.Color(255, 195, 27)
 
 controlador_fps = pygame.time.Clock()
-tamanho_cobra = 21 # tamanho inicial da cobra
+tamanho_cobra = 20 # tamanho inicial da cobra
 
 #iniciando as variaveis principais do jogo
 def init_vars():
@@ -32,16 +33,24 @@ def init_vars():
     direcao = 'RIGHT'
     pos_cabeca = [120, 60]
     corpo_cobra = [[120, 60]]
-    pos_comida = [random.randrange(1, (janela_x // tamanho_cobra)) * tamanho_cobra,
-                  random.randrange(1, (janela_y // tamanho_cobra)) * tamanho_cobra]
+    pos_comida = [randrange(1, (janela_x // tamanho_cobra)) * tamanho_cobra,
+                  randrange(1, (janela_y // tamanho_cobra)) * tamanho_cobra]
     gerar_comida = True
     pontos = 0
 
 init_vars()    
 
-def pontuacao():
-    print('Pontuacao')
+def pontuacao(escolha, cor, fonte, tamanho):
+    pontuacao_fonte = pygame.font.SysFont(fonte, tamanho)
+    pontuacao_tela = pontuacao_fonte.render('Pontuação: ' + str(pontos), True, cor)
+    pontuacao_certa = pontuacao_tela.get_rect()
 
+    if escolha == 1:
+        pontuacao_certa.midtop = (janela_x / 10, 15)
+    else:
+        pontuacao_certa.midtop = (janela_x / 2, janela_y / 1.25)
+
+    janela_jogo.blit(pontuacao_tela, pontuacao_certa)
 
 #loop do jogo
 while True:
@@ -74,7 +83,36 @@ while True:
         pos_cabeca[0] = 0
     elif pos_cabeca[1] < 0:
         pos_cabeca[1] = janela_y - tamanho_cobra
-    elif pos_cabeca[1] < janela_y - tamanho_cobra:
+    elif pos_cabeca[1] > janela_y - tamanho_cobra:
         pos_cabeca[1] = 0
 
-pygame.display.update()        
+    #comendo a maçã
+    corpo_cobra.insert(0, list(pos_cabeca))
+    if pos_cabeca[0] == pos_comida[0] and pos_cabeca[1] == pos_comida[1]:
+        pontos += 1
+        gerar_comida = False
+    else:
+        corpo_cobra.pop()
+
+    #gerando a comida    
+    if not gerar_comida:
+        pos_comida = [randrange(1, (janela_x // tamanho_cobra)) * tamanho_cobra,
+                      randrange(1, (janela_y // tamanho_cobra)) * tamanho_cobra] 
+
+    #Gráficos
+    janela_jogo.fill(preto)
+    for pos in corpo_cobra:
+        pygame.draw.rect(janela_jogo, roxo, pygame.Rect(
+            pos[0] + 2, pos[1] + 2, tamanho_cobra - 2, tamanho_cobra))
+
+    pygame.draw.rect(janela_jogo, amarelo, pygame.Rect(
+        pos_comida[0], pos_comida[1], tamanho_cobra, tamanho_cobra))    
+
+    #condições de fim de jogo
+    for bloco in corpo_cobra[1:]:
+        if pos_cabeca[0]  == bloco[0] and pos_cabeca[1] == bloco[1]:
+            init_vars()  
+
+    pontuacao(1, branco, 'consolas', 20)
+    pygame.display.update()       
+    controlador_fps.tick(velocidade) 
