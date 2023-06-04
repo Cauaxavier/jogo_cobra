@@ -1,10 +1,11 @@
-import pygame, sys, time
+import pygame
+from sys import exit
 from random import randrange
 
 velocidade = 15
 
-janela_x = 750
-janela_y = 500
+janela_x = 720
+janela_y = 480
 
 existe_erro = pygame.init()
 
@@ -19,13 +20,14 @@ janela_jogo = pygame.display.set_mode((janela_x, janela_y))
 
 #cores 
 branco = pygame.Color(255, 255, 255)
-roxo = pygame.Color(86, 52, 255)
+roxo = pygame.Color(128, 50, 255)
 preto = pygame.Color(0, 0, 0)
-verde = pygame.Color(14, 90, 50)
+vermelho = pygame.Color(255, 0, 0)
+verde = pygame.Color(0, 255, 0)
 amarelo = pygame.Color(255, 195, 27)
 
 controlador_fps = pygame.time.Clock()
-tamanho_cobra = 20 # tamanho inicial da cobra
+tamanho_cobra = 30 # tamanho do bloco
 
 #iniciando as variaveis principais do jogo
 def init_vars():
@@ -57,7 +59,7 @@ while True:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             pygame.quit()
-            sys.exit()
+            exit()
         elif evento.type == pygame.KEYDOWN:
             if (evento.key == pygame.K_UP or evento.key == ord('w') and direcao != 'DOWN'):
                 direcao = 'UP'
@@ -97,15 +99,16 @@ while True:
     #gerando a comida    
     if not gerar_comida:
         pos_comida = [randrange(1, (janela_x // tamanho_cobra)) * tamanho_cobra,
-                      randrange(1, (janela_y // tamanho_cobra)) * tamanho_cobra] 
+                      randrange(1, (janela_y // tamanho_cobra)) * tamanho_cobra]
+        gerar_comida = True 
 
     #Gráficos
     janela_jogo.fill(preto)
     for pos in corpo_cobra:
-        pygame.draw.rect(janela_jogo, roxo, pygame.Rect(
-            pos[0] + 2, pos[1] + 2, tamanho_cobra - 2, tamanho_cobra))
+        pygame.draw.rect(janela_jogo, verde, pygame.Rect(
+            pos[0] + 2, pos[1] + 2, tamanho_cobra - 2, tamanho_cobra - 2))
 
-    pygame.draw.rect(janela_jogo, amarelo, pygame.Rect(
+    pygame.draw.rect(janela_jogo, vermelho, pygame.Rect(
         pos_comida[0], pos_comida[1], tamanho_cobra, tamanho_cobra))    
 
     #condições de fim de jogo
